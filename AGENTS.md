@@ -6,4 +6,5 @@
 - HTML pages start at Full (level 1). Shift + wheel controls reading zoom.
 - Keep generated pages, session logs, local configuration, credentials, caches and backups outside the repository.
 - Preserve upstream license notices when importing or modifying third-party skills.
+- Keep `SOURCE.md` for each skill with upstream URLs, the known import version, reference projects, local changes and license locations. Distinguish copied code from design inspiration; do not infer an exact upstream commit for an untracked installation.
 - Check changed JavaScript modules with `node --check`. Verify renderer and browser behavior when changing page interactions.
