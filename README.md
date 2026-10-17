@@ -2,6 +2,8 @@
 
 llsunlie 的个人 AI Agent skill 库。每个 skill 单独放在 `skills/<name>/`，通过 Git 维护指令、脚本和参考资料。
 
+**[打开 Skill 展示页 →](https://llsunlie.github.io/personal-skills/)** · [体验五级阅读](https://llsunlie.github.io/personal-skills/demo.html)
+
 ## 已收录
 
 | Skill | 功能 | 来源与定制 |
@@ -23,7 +25,7 @@ cd personal-skills
 python3 scripts/install.py
 ```
 
-安装器将 skill 链接到 `~/.agents/skills/`。如果已有同名安装，会先移到 `~/.agents/skill-backups/`，再建立链接。重复安装同一来源不会重复备份。私有仓库需要先配置 GitHub 登录。
+安装器将 skill 链接到 `~/.agents/skills/`。如果已有同名安装，会先移到 `~/.agents/skill-backups/`，再建立链接。重复安装同一来源不会重复备份。仓库公开，可直接克隆。
 
 也可以指定安装目录或只安装一个 skill：
 
@@ -54,3 +56,23 @@ git push
 ## 数据边界
 
 仓库保存 skill 源码和说明。生成页面、会话记录、本机配置、密钥、缓存和备份保留在本机。
+
+## 展示页维护
+
+GitHub Pages 发布 `main` 分支的 `docs/` 目录。展示页使用原生 HTML、CSS 和 JavaScript，不需要安装前端依赖。更新并推送该目录后，GitHub 会自动重新发布。
+
+本地预览：
+
+```bash
+python3 -m http.server 8891 --directory docs
+```
+
+首页为 `docs/index.html`，样式和交互分别在 `style.css` 与 `app.js`。新增 skill 时同步维护目录、来源信息和安装选择项。
+
+公开阅读示例由专用草稿 `skills/answer-me-with-html/examples/reading.md` 构建，不读取个人会话：
+
+```bash
+node scripts/build-demo.mjs
+```
+
+它会更新 `docs/demo.html`。修改折叠模块后应重新构建并验证示例，避免展示页使用旧交互。

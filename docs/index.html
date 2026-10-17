@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6f7f2">
+  <meta name="description" content="llsunlie 的个人 Skill 库。发现可独立使用的 Agent 技能，了解上游来源、个人定制和安装方式。">
+  <meta property="og:title" content="Personal Skills · llsunlie">
+  <meta property="og:description" content="把顺手的能力，收进自己的工具箱。开放源码，保留出处，持续打磨。">
+  <meta property="og:type" content="website">
+  <link rel="canonical" href="https://llsunlie.github.io/personal-skills/">
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg">
+  <link rel="stylesheet" href="./style.css">
+  <title>Personal Skills · llsunlie 的个人技能库</title>
+  <script src="./app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#skills">跳到 Skill 目录</a>
+  <header class="site-header wrap">
+    <a class="brand" href="./" aria-label="Personal Skills 首页"><span class="brand-mark" aria-hidden="true">[s]</span><span>personal<span class="brand-light">/</span>skills<span class="brand-owner">by llsunlie</span></span></a>
+    <nav aria-label="主导航">
+      <a href="#skills">Skills</a><a href="#sources">来源</a><a href="#install">安装</a>
+      <a class="nav-github" href="https://github.com/llsunlie/personal-skills" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a>
+    </nav>
+  </header>
+  <main>
+    <section class="hero wrap" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <p class="eyebrow"><span class="status-dot" aria-hidden="true"></span>A PERSONAL TOOLKIT FOR AGENTS</p>
+        <h1 id="hero-title">把顺手的能力，<br>收进自己的<span class="highlight">工具箱。</span></h1>
+        <p class="hero-description">一份慢慢打磨的个人 Skill 收藏。<br>把常用的工作方式写成指令，让每一次使用都有迹可循。</p>
+        <div class="hero-actions"><a class="button primary" href="#skills">打开工具箱 <span aria-hidden="true">↘</span></a><a class="text-link" href="#sources">了解它们从哪里来 <span aria-hidden="true">→</span></a></div>
+        <div class="hero-facts"><span><b>02</b> 个收录技能</span><span><b>03</b> 个上游项目</span><span class="fact-git"><span aria-hidden="true">⑂</span> 用 Git 持续维护</span></div>
+      </div>
+      <div class="workspace" aria-label="仓库结构：每个 skill 都保存使用指令、来源说明和所需脚本">
+        <div class="workspace-top"><span><i></i><i></i><i></i></span><span>~/personal-skills</span><span class="workspace-branch">⑂ main</span></div>
+        <div class="workspace-content"><div class="workspace-label">YOUR SKILLS, YOUR WORKFLOW.</div><div class="file-tree"><span class="tree-root">▾ skills/</span><div class="tree-folder"><span class="folder-icon" aria-hidden="true">▾</span> answer-me-with-html/<div class="tree-files"><span><em>md</em> SKILL.md <small>如何使用</small></span><span class="tree-active"><em>md</em> SOURCE.md <small>来自哪里</small></span><span><em>js</em> scripts/ <small>如何工作</small></span></div></div><div class="tree-folder"><span class="folder-icon" aria-hidden="true">▾</span> asd-ste100/<div class="tree-files"><span><em>md</em> SKILL.md</span><span><em>md</em> SOURCE.md</span></div></div></div><div class="workspace-bottom"><span class="status-dot" aria-hidden="true"></span> 来源清楚，修改有记录。</div></div>
+        <span class="workspace-note" aria-hidden="true">small tools. personal craft.</span>
+      </div>
+    </section>
+
+    <section class="catalog wrap section" id="skills" aria-labelledby="skills-title">
+      <div class="section-heading"><div><p class="eyebrow">01 / THE COLLECTION</p><h2 id="skills-title">现在，工具箱里有这些。</h2></div><p class="section-aside">按需要收录，按使用打磨。<br>每个 skill 都可以独立安装。</p></div>
+      <div class="catalog-tools"><div class="filters" role="group" aria-label="按用途筛选"><button type="button" data-filter="all" aria-pressed="true">全部 <span>02</span></button><button type="button" data-filter="reading" aria-pressed="false">阅读与呈现</button><button type="button" data-filter="writing" aria-pressed="false">写作与表达</button></div><label class="search"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg><span class="sr-only">搜索 skill 名称、功能或来源</span><input type="search" id="skill-search" placeholder="搜索名称、功能、来源…" aria-controls="skill-list" autocomplete="off"></label></div>
+      <p id="filter-status" class="sr-only" role="status" aria-live="polite">显示全部 2 个 skill</p>
+      <div id="skill-list" class="skill-grid">
+        <article class="skill-card" data-category="reading" data-search="answer-me-with-html html markdown 阅读 呈现 图表 页面 折叠 五级 缩放 textfold QingYunA chenxiachan">
+          <div class="card-top"><span class="skill-icon icon-document" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 4h11l6 6v18H8z"/><path d="M19 4v7h6M12 16h9M12 21h6"/></svg></span><span class="card-category">阅读与呈现</span><span class="card-number">001</span></div>
+          <div class="card-title"><h3>Answer me with HTML</h3><span class="version">基于 v0.4.12 · 定制</span></div>
+          <p class="skill-id">answer-me-with-html</p>
+          <p class="card-description">让长回答变成一张能看懂、能展开的页面。<br>先读结论，再按自己的节奏走进细节。</p>
+          <div class="reading-visual" aria-label="五级阅读：全文、简述、关键句、要点、主题"><div class="reading-visual-head"><span class="mini-label">READ AT YOUR OWN DEPTH</span><span aria-hidden="true">↗</span></div><div class="reading-levels"><span class="active">全文</span><span>简述</span><span>关键句</span><span>要点</span><span>主题</span></div><div class="reading-lines" aria-hidden="true"><span></span><span></span><span></span></div><div class="reading-shortcut"><kbd>Shift</kbd><span>＋ 滚轮，逐层阅读</span></div></div>
+          <div class="tags"><span>单文件 HTML</span><span>图表</span><span>五级折叠</span><span>本地预览</span></div>
+          <p class="source-summary"><span class="source-label">来源</span> Answer me with HTML <span class="muted">＋ TextFold 交互参考</span></p>
+          <div class="card-actions"><a class="button small primary" href="#install" data-install="answer-me-with-html">安装这个 skill <span aria-hidden="true">↓</span></a><a class="text-link small" href="./demo.html" target="_blank" rel="noopener noreferrer">试用阅读效果 ↗</a><button class="source-button" type="button" data-source="html">来源详情</button></div>
+        </article>
+        <article class="skill-card" data-category="writing" data-search="asd-ste100 ste100 simplified technical english 英文 英语 写作 表达 简化 歧义 提示词 工具 指令 danyuchn">
+          <div class="card-top"><span class="skill-icon icon-writing" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m7 22 1-6L22 2l6 6-14 14-7 1zM18 6l6 6M7 28h20"/></svg></span><span class="card-category">写作与表达</span><span class="card-number">002</span></div>
+          <div class="card-title"><h3>ASD–STE100</h3><span class="version">v0.4.0 · 安装快照</span></div>
+          <p class="skill-id">asd-ste100</p>
+          <p class="card-description">把容易误读的英文，改成清楚的技术表达。<br>适合提示词、工具描述和 Agent 之间的指令。</p>
+          <div class="writing-visual"><div class="writing-before"><span class="mini-label">BEFORE</span><p>If the request fails, the worker should retry it; if the retry also fails, it must report the error.</p></div><div class="writing-after"><span class="mini-label">AFTER <span aria-hidden="true">↘</span></span><p>If the request fails, the worker should retry it.<br>If the retry also fails, it must report the error.</p></div></div>
+          <div class="tags"><span>减少歧义</span><span>技术英语</span><span>结构检查</span><span>保留原意</span></div>
+          <p class="source-summary"><span class="source-label">来源</span> danyuchn/asd-ste100-skill</p>
+          <div class="card-actions"><a class="button small primary" href="#install" data-install="asd-ste100">安装这个 skill <span aria-hidden="true">↓</span></a><a class="text-link small" href="https://github.com/llsunlie/personal-skills/blob/main/skills/asd-ste100/examples/before-after.md" target="_blank" rel="noopener noreferrer">看更多改写示例 ↗</a><button class="source-button" type="button" data-source="ste">来源详情</button></div>
+        </article>
+      </div>
+      <div class="empty-state" id="empty-state" hidden><span aria-hidden="true">⌕</span><h3>暂时没有匹配的 skill</h3><p>试试“阅读”“英文”或“TextFold”。</p><button class="button small" id="reset-search" type="button">显示全部</button></div>
+      <noscript><p class="no-script">你仍可查看所有 skill 和安装命令。启用 JavaScript 后可搜索、筛选、复制命令和查看弹窗详情；完整来源文档见下方链接。</p></noscript>
+    </section>
+
+    <section class="origins section" id="sources" aria-labelledby="sources-title"><div class="wrap origins-layout"><div class="origins-intro"><p class="eyebrow">02 / BUILT ON GOOD WORK</p><h2 id="sources-title">每个工具，<br>都有它的来处。</h2><p>好的工具值得延续，也值得被正确署名。<br>这里保留上游项目、许可证，以及个人版本改了什么。</p><a class="text-link" href="https://github.com/llsunlie/personal-skills" target="_blank" rel="noopener noreferrer">在 GitHub 查看全部记录 <span aria-hidden="true">↗</span></a></div><div class="origin-list"><a class="origin-row" href="https://github.com/QingYunA/answer-me-with-html" target="_blank" rel="noopener noreferrer"><span class="origin-index">01</span><span><strong>Answer me with HTML <span aria-hidden="true">↗</span></strong><small>QingYunA / answer-me-with-html</small><span class="origin-description">HTML 渲染、图表组件与写作工作流的基础。</span></span><span class="origin-role">基础实现<span>MIT</span></span></a><a class="origin-row" href="https://github.com/chenxiachan/textfold" target="_blank" rel="noopener noreferrer"><span class="origin-index">02</span><span><strong>TextFold <span aria-hidden="true">↗</span></strong><small>chenxiachan / textfold</small><span class="origin-description">五级阅读、局部展开与文字过渡的交互参考。</span></span><span class="origin-role">设计参考<span>Apache-2.0</span></span></a><a class="origin-row" href="https://github.com/danyuchn/asd-ste100-skill" target="_blank" rel="noopener noreferrer"><span class="origin-index">03</span><span><strong>ASD–STE100 Skill <span aria-hidden="true">↗</span></strong><small>danyuchn / asd-ste100-skill</small><span class="origin-description">英文写作规则、示例与结构检查脚本的来源。</span></span><span class="origin-role">导入快照<span>MIT</span></span></a><p class="origins-note">HTML 折叠模块在个人版本中独立实现。TextFold 作为交互参考，不是运行依赖。各 skill 的 <a href="https://github.com/llsunlie/personal-skills/blob/main/skills/answer-me-with-html/SOURCE.md" target="_blank" rel="noopener noreferrer">SOURCE.md</a> 与许可证保留在仓库中。</p></div></div></section>
+
+    <section class="installation wrap section" id="install" aria-labelledby="install-title"><div class="install-copy"><p class="eyebrow">03 / MAKE IT YOURS</p><h2 id="install-title">克隆，然后开始用。</h2><p>把需要的 skill 链接到本机。<br>代码由 Git 维护，日常使用仍在自己的工作环境里。</p><div class="requirements"><span>Git</span><span>Python 3</span><span>HTML skill：Node.js 20+</span></div><a class="text-link" href="https://github.com/llsunlie/personal-skills#安装" target="_blank" rel="noopener noreferrer">完整安装与维护说明 <span aria-hidden="true">↗</span></a></div><div class="install-panel"><div class="install-panel-top"><label for="install-scope">安装范围</label><select id="install-scope"><option value="all">全部 skills</option><option value="answer-me-with-html">仅 Answer me with HTML</option><option value="asd-ste100">仅 ASD–STE100</option></select><button type="button" id="copy-command" aria-label="复制安装命令"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="8" y="8" width="12" height="13" rx="2"/><path d="M15 8V3H3v13h5"/></svg><span>复制</span></button></div><pre><code id="install-command">git clone https://github.com/llsunlie/personal-skills.git
+cd personal-skills
+python3 scripts/install.py</code></pre><div class="install-note"><span aria-hidden="true">↳</span><p>默认链接到 <code>~/.agents/skills/</code>。已有同名安装会先备份，再建立链接。</p></div></div></section>
+    <section class="closing wrap"><span class="closing-symbol" aria-hidden="true">[s]</span><p>少一点重复，<br>多一点顺手。</p><a class="text-link" href="https://github.com/llsunlie/personal-skills" target="_blank" rel="noopener noreferrer">在 GitHub 一起打磨 <span aria-hidden="true">↗</span></a></section>
+  </main>
+  <footer class="site-footer wrap"><span>personal/skills <span class="muted">· maintained by</span> <a href="https://github.com/llsunlie" target="_blank" rel="noopener noreferrer">llsunlie</a></span><span>保留来源，持续改进。<a href="#hero-title" aria-label="返回顶部">↑</a></span></footer>
+  <dialog id="source-dialog" aria-labelledby="dialog-title"><div class="dialog-top"><p class="eyebrow">PROVENANCE / 来源档案</p><button type="button" class="dialog-close" aria-label="关闭来源详情">✕</button></div><div id="dialog-content"></div></dialog>
+  <template id="source-html"><h2 id="dialog-title">Answer me with HTML</h2><p class="dialog-lead">一个渲染基础，一份交互参考，加上个人工作流的定制。</p><div class="provenance-item"><span>基础实现 · MIT</span><h3><a href="https://github.com/QingYunA/answer-me-with-html" target="_blank" rel="noopener noreferrer">QingYunA/answer-me-with-html ↗</a></h3><p>沿用扩展 Markdown、HTML 渲染器、图表、主题和写作检查。导入的 CLI 标识为 0.4.12。</p></div><div class="provenance-item"><span>交互参考 · 来源项目为 Apache-2.0</span><h3><a href="https://github.com/chenxiachan/textfold" target="_blank" rel="noopener noreferrer">chenxiachan/textfold ↗</a></h3><p>参考五级阅读、单节展开与文字移动淡出的交互方式。fold.mjs 独立实现，不包含 TextFold 阅读器代码或服务。</p></div><div class="provenance-item"><span>个人定制</span><h3>把阅读控制留给读者</h3><p>默认全文、Shift＋滚轮平滑缩放、独立 HTML、固定本地预览与会话归档。折叠使用原句提取，不额外调用模型。</p></div><a class="button primary" href="https://github.com/llsunlie/personal-skills/blob/main/skills/answer-me-with-html/SOURCE.md" target="_blank" rel="noopener noreferrer">阅读完整 SOURCE.md ↗</a></template>
+  <template id="source-ste"><h2 id="dialog-title">ASD–STE100</h2><p class="dialog-lead">将简化技术英语的原则，用在 Agent 需要准确理解的表达上。</p><div class="provenance-item"><span>原始项目 · MIT</span><h3><a href="https://github.com/danyuchn/asd-ste100-skill" target="_blank" rel="noopener noreferrer">danyuchn/asd-ste100-skill ↗</a></h3><p>作者为 Dustin Yuchen Teng。本仓库保存本机安装的 0.4.0 快照，包括规则、示例、参考资料和结构检查脚本。</p></div><div class="provenance-item"><span>理念来源</span><h3><a href="https://www.asd-ste100.org/" target="_blank" rel="noopener noreferrer">ASD–STE100 Simplified Technical English ↗</a></h3><p>参考简化技术英语的写作原则，不包含官方标准全文或完整批准词典。</p></div><div class="provenance-item"><span>个人库中的变化</span><h3>保留内容，补全来处</h3><p>新增来源与维护说明，保留原许可证。本次导入未改写现有检查脚本；原始安装提交未记录，不声称等同某个上游提交。</p></div><a class="button primary" href="https://github.com/llsunlie/personal-skills/blob/main/skills/asd-ste100/SOURCE.md" target="_blank" rel="noopener noreferrer">阅读完整 SOURCE.md ↗</a></template>
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>
