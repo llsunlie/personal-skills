@@ -23,7 +23,9 @@
 - `scripts/fold.mjs`：分句和分词、五级原句提取、逐词移动与淡出、连续滑杆、单节展开、Shift＋滚轮平滑缩放。
 - 默认显示全文；支持 `fold: 1` 至 `fold: 5`，以及 `fold: off`。
 - 滚轮输入统一像素、行、页单位，兼容横向映射；按动画帧累计，并避免短滚动取整后退回原级。
-- `scripts/preview.mjs`、`scripts/catalog.html`：固定本地预览地址，以及会话、轮次和页面归档目录。
+- `scripts/preview.mjs`、`scripts/catalog.html`：本地预览服务，以及会话、轮次和页面归档目录。
+- `scripts/settings.mjs`：用户级共享配置的原子更新与跨进程启动锁。预览端口冲突时自动选择可用端口，记录实际端口供其他会话复用；不同 `AM_HOME` 保持隔离。
+- 默认主题为纸张；草稿或命令行显式指定的主题仍然优先。
 - `SKILL.md`、[references/folding.md](references/folding.md)：写作约定、配置方式和操作说明。
 
 本版本的层级是固定的原句提取：每段前两句、每段第一句、每节第一句、章节标题。它采用 TextFold Agent 折叠的思路，不包含 TextFold 文档阅读器的 AI 语义摘要、文件导入、PDF 对照、翻译和问答能力。

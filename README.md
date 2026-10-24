@@ -51,7 +51,7 @@ git push
 
 新增 skill 时，在 `skills/` 下建立同名目录，放入 `SKILL.md`、`SOURCE.md`、上游许可证和所需资源，再运行安装器。系统自带 skill 和第三方插件不自动收录。
 
-更新 HTML skill 的上游版本时应手动合并，保留 `fold.mjs`、`preview.mjs`、`catalog.html` 及 `am.mjs` 中的接入代码。
+更新 HTML skill 的上游版本时应手动合并，保留 `fold.mjs`、`preview.mjs`、`settings.mjs`、`catalog.html` 及 `am.mjs` 中的接入代码。
 
 ## 数据边界
 
@@ -76,3 +76,5 @@ node scripts/build-demo.mjs
 ```
 
 它会更新 `docs/demo.html`。修改折叠模块后应重新构建并验证示例，避免展示页使用旧交互。
+
+HTML 默认使用纸张主题。预览端口被占用时自动选择可用端口，并保存到用户级配置；共用同一 `AM_HOME` 的会话会复用服务和实际端口。

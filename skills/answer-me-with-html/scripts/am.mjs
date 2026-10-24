@@ -3,6 +3,7 @@
 
 // Local preview extension; bundled CLI updates can overwrite this integration.
 import { ensurePreview, registerPage } from "./preview.mjs";
+import { updateSharedConfig } from "./settings.mjs";
 import { FOLD_CSS, foldScript } from "./fold.mjs";
 
 // src/cli.js
@@ -7076,9 +7077,9 @@ var ConfigError = class extends Error {
 };
 var CONFIG_KEYS = Object.freeze({
   preview: { type: "bool", default: true, label: "Serve generated pages over local HTTP" },
-  port: { type: "port", default: 8765, label: "Fixed local preview port" },
+  port: { type: "port", default: 8765, label: "Preferred preview port (shared across sessions; auto-fallback)" },
   open: { type: "bool", default: true, label: "Open the page in the browser after it is made" },
-  theme: { type: "enum", choices: CHOICES.theme, default: AUTO, label: "Default theme (auto: paper for long text, blueprint for diagrams)" },
+  theme: { type: "enum", choices: CHOICES.theme, default: "paper", label: "Default theme (paper; explicit theme or auto can override it)" },
   mode: { type: "enum", choices: CHOICES.mode, default: "auto", label: "Default light/dark mode" },
   style: { type: "enum", choices: CHOICES.style, default: "80", label: "STE writing-check strictness" },
   update_check: { type: "bool", default: true, label: "Check for a new version once a week in the background and tell you (never updates by itself)" },
@@ -7140,27 +7141,14 @@ function readConfig(env = process.env, themes2 = loadThemes(amHome(env))) {
   }
   return { values, stored, warning: warnings.filter(Boolean).join("; ") || void 0, path: configPath(env) };
 }
-function writeStored(stored, env) {
-  const file = configPath(env);
-  if (!Object.keys(stored).length) {
-    rmSync4(file, { force: true });
-    return;
-  }
-  mkdirSync3(dirname(file), { recursive: true });
-  writeFileSync4(file, `${JSON.stringify(stored, null, 2)}
-`);
-}
 function setConfig(key, raw, env = process.env, themes2 = loadThemes(amHome(env))) {
   const value = coerce2(key, raw, themes2);
-  const { stored } = readStored(env);
-  writeStored({ ...stored, [key]: value }, env);
+  updateSharedConfig(amHome(env), stored => ({ ...stored, [key]: value }));
   return value;
 }
 function resetConfig(key, env = process.env) {
   if (key !== void 0 && !CONFIG_KEYS[key]) coerce2(key, "", null);
-  const { stored } = readStored(env);
-  const next = key === void 0 ? {} : Object.fromEntries(Object.entries(stored).filter(([k2]) => k2 !== key));
-  writeStored(next, env);
+  updateSharedConfig(amHome(env), stored => key === void 0 ? {} : Object.fromEntries(Object.entries(stored).filter(([k2]) => k2 !== key)));
 }
 
 // src/patch.js
@@ -7245,7 +7233,7 @@ var FORMAT = `Draft format (extended Markdown)
 
 ---
 template: sheet        # sheet: blueprint board (default, multi-panel grid) | doc: linear explainer (one column + contents)
-theme: auto            # auto (default): paper for the doc template or text only, blueprint with diagrams | blueprint | shadcn | paper; switchable in the page
+theme: paper           # default: paper for text and diagrams | auto | blueprint | shadcn; switchable in the page
 title: Page title      # or use "# Title" as the first line of the body
 subtitle: Subtitle     # optional
 cols: 3                # number of sheet grid columns, default 3

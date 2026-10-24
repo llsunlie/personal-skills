@@ -39,7 +39,7 @@ When the arguments start with `config` (for example `/answer-me-with-html config
 - `config <key> <value>`: run `am config set <key> <value>`.
 - `config reset [key]`: run `am config reset [key]`.
 
-When the user asks in natural language ("stop opening the browser", "use the card theme by default"), also convert it to `am config set`. Settings: `preview` (serve pages over local HTTP, default on), `port` (fixed preview port, default 8765), `open` (auto-open the browser), `theme`, `mode`, `style`, `voice` (video narration), `update_check` (new-version notices). Run `am config` to see all descriptions.
+When the user asks in natural language ("stop opening the browser", "use the card theme by default"), also convert it to `am config set`. Settings: `preview` (serve pages over local HTTP, default on), `port` (preferred preview port, default 8765, with automatic fallback), `open` (auto-open the browser), `theme` (paper by default), `mode`, `style`, `voice` (video narration), `update_check` (new-version notices). Run `am config` to see all descriptions.
 
 When the arguments start with `clean`, or the user asks to clean up pages / the cache: first run `am clean --dry-run` and tell the user how many items and how much space will be deleted. Run `am clean` only after the user agrees (add `--all` to delete all pages and videos, `--days N` to change how many days to keep).
 
@@ -101,16 +101,18 @@ AM_EOF
 5. Reply in the terminal with only 2–3 lines: one core conclusion + the page link. Do not paste the draft or the HTML back into the terminal. Write this reply after the render, as the last step of the turn: render the page first, then reply. No tool call comes after the reply.
    Write the page link as a Markdown link to the exact HTTP URL printed by the CLI, for example `[打开页面](http://localhost:8765/pages/example.html)`. Do not return a `file://` link when the HTTP URL is available. If preview startup fails or output is outside the served directories, use an absolute local file link and state the preview error briefly.
 
-### Fixed local preview server
+### Shared local preview server
 
 The local extension in `scripts/preview.mjs` serves only `$AM_HOME/pages/` and `$AM_HOME/videos/` (default home: `~/.answer-me-with-html`). It binds to `127.0.0.1`; Windows browsers can use WSL localhost forwarding.
 
 - `http://localhost:8765/`: paper-style catalog, grouped by session, with title/body/session search and sorting.
 - `http://localhost:8765/latest`: redirects to the most recently modified page.
-- Each generated page keeps its own HTTP URL, including pages generated before this extension was installed.
-- `am config set port 8765` changes the fixed port. `am config set preview off` disables automatic preview startup.
+- Each generated page keeps its relative path. If the port changes, use the current HTTP URL printed by the CLI; the catalog at the current port includes older pages.
+- `am config set port 8765` changes the preferred port. `am config set preview off` disables automatic preview startup.
 - `--no-open` suppresses browser launch only; the server still starts. A detached server is reused across render, patch and video calls. After WSL restarts, the next generated page starts it again.
-- If the port belongs to another service, report the conflict. Do not silently choose a different port. The generated file remains available.
+- If the preferred port is unavailable, the runtime tries subsequent ports and then an OS-assigned free port. It never stops or replaces the service that already owns a port. Return the actual HTTP URL printed by the CLI.
+- The selected port is saved in `$AM_HOME/config.json`; `$AM_HOME/preview-state.json` records the active service, home, port and process. A shared startup lock prevents concurrent sessions from starting separate servers. Each render rereads the saved port inside that lock, so even a session with an older configuration snapshot reuses the selected server.
+- Sessions using the same `$AM_HOME` share settings and preview state. A deliberately different `$AM_HOME` stays isolated; it selects its own available port rather than serving another home's files. Do not claim this synchronizes separate computers or accounts.
 - The server log is `$AM_HOME/preview.log`. Changing the port starts a new server on the next render; an existing server stays on its previous port until stopped.
 
 ### Paper theme and session archive
@@ -123,7 +125,7 @@ On the first render of a conversation, set `AM_SESSION_TITLE` to a short descrip
 
 Record each page's turn as well as its session. Prefer `AM_TURN_ID` / `AM_TURN_TITLE`, then `CODEX_TURN_ID`; in Codex, the CLI can resolve the current turn and user question from the matching session's local rollout log. `CODEX_TOOL_CALL_ID` identifies a tool call, not a turn; never use it as the turn ID. When turn context is unavailable, set one stable `AM_TURN_ID` for the current user request and reuse it across all renders in that turn. Start a new turn ID only for a new user request. Unresolved historical turns appear as “未记录轮次”; do not assign them to the current turn. Patching a page preserves its original session and turn. Only backfill old turn metadata when the matching session log and generation timestamp establish its origin. New defaults do not restyle previously generated pages.
 
-This installation has local changes in `scripts/am.mjs`, `scripts/preview.mjs`, `scripts/catalog.html`, and `scripts/fold.mjs`. Before updating the skill, preserve and reapply these changes, then verify render output, folding controls, and server reuse. Preserve the folding authoring instructions and `references/folding.md` too. Upstream CLI bundles can overwrite the integration.
+This installation has local changes in `scripts/am.mjs`, `scripts/preview.mjs`, `scripts/settings.mjs`, `scripts/catalog.html`, and `scripts/fold.mjs`. Before updating the skill, preserve and reapply these changes, then verify render output, folding controls, port fallback, concurrent server reuse and shared settings. Preserve the folding authoring instructions and `references/folding.md` too. Upstream CLI bundles can overwrite the integration.
 
 When a page already exists and only one panel needs to change, do not rewrite the whole page. Take the source draft from the HTML's `#am-source`, replace only the matching `##` section, and overwrite the page in place:
 
@@ -229,7 +231,7 @@ AM_EOF
 - Nodes with the same name in adjacent scenes move smoothly to their new position. To keep the viewer following one object, reuse the same name in the next scene.
 - 3–6 scenes per video, one or two sentences per narration line.
 - Narration is read aloud, so write it as speech, as if explaining to someone face to face: transitions like `你看`, `那问题来了`, `我们换个角度看` are fine, and characters' "lines" go in quotes. Do not write it like a manual (`客户端发送 SYN 报文以请求建立连接`). Sentence length is still subject to the STE check.
-- The look follows the theme in the settings by default (usually the blueprint drawing style). When the user wants "that dark 3b1b style", write `theme: 3b1b` in the frontmatter.
+- The look follows the configured theme (paper by default). When the user wants "that dark 3b1b style", write `theme: 3b1b` in the frontmatter.
 - Narration voice: the default is `--voice auto`: ElevenLabs when `ELEVENLABS_API_KEY` is set, otherwise system TTS (macOS say), and subtitles only when neither is available. When the user says "no sound", add `--voice off`. When the user runs a local OpenAI-compatible speech service and has set `AM_TTS_URL`, use `--voice local`.
 - The output is a single-file player page under `~/.answer-me-with-html/videos/` (audio embedded). When the user wants a video file, add `--mp4`; this needs Chrome, ffmpeg and Node.js 22+ on the machine, and export takes about 1.3 times the video length.
 - Full syntax: `am help video`. In the terminal, reply with one sentence plus the player page link (and the MP4 link), written as in step 5 of section 2.

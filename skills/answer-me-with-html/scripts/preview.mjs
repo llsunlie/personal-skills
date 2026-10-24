@@ -1,9 +1,11 @@
 import { createServer } from 'node:http';
 import { spawn } from 'node:child_process';
-import { createReadStream, mkdirSync, openSync, closeSync, readdirSync, statSync, realpathSync, readFileSync, writeFileSync, renameSync } from 'node:fs';
+import { createReadStream, openSync, closeSync, readdirSync, statSync, realpathSync, readFileSync, writeFileSync, renameSync } from 'node:fs';
 import { resolve, relative, sep, extname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { homedir } from 'node:os';
+import { randomUUID } from 'node:crypto';
+import { readSharedConfig, updateSharedConfig, withPreviewLock, readPreviewState, writePreviewState } from './settings.mjs';
 
 const identity = 'answer-me-with-html-preview-v1';
 const script = fileURLToPath(import.meta.url);
@@ -128,7 +130,7 @@ export function conversationPage(home, { sessionId = '', offset = 0, query = '' 
       totalTurns: turns.length, offset, hasMore: offset + 50 < turns.length }];
   });
 }
-export function serve(home, port) {
+function createPreviewServer(home) {
   home = resolve(home);
   const server = createServer((req, res) => {
     res.setHeader('X-Content-Type-Options', 'nosniff');
@@ -140,7 +142,7 @@ export function serve(home, port) {
     let path;
     try { path = decodeURIComponent(new URL(req.url, 'http://localhost').pathname); }
     catch { send(400, 'Bad request'); return; }
-    if (path === '/__am_health') { send(200, JSON.stringify({ service: identity, home }), 'application/json'); return; }
+    if (path === '/__am_health') { send(200, JSON.stringify({ service: identity, home, port: server.address()?.port, pid: process.pid }), 'application/json'); return; }
     if (path === '/latest') {
       const latest = listPages(home)[0];
       if (!latest) { send(404, 'No pages yet'); return; }
@@ -168,45 +170,97 @@ export function serve(home, port) {
       else createReadStream(file).on('error', () => res.destroy()).pipe(res);
     } catch { send(404, 'Not found'); }
   });
-  server.on('error', err => { console.error(err.message); process.exitCode = 1; });
+  return server;
+}
+
+export function serve(home, port) {
+  const server = createPreviewServer(home);
+  server.on('error', error => { console.error(error.message); process.exitCode = 1; });
   server.listen(port, '127.0.0.1');
   return server;
 }
+
+const validPort = value => Number.isInteger(value) && value >= 1 && value <= 65535;
+const nextPort = port => port >= 65535 || port < 1024 ? 1024 : port + 1;
+
+async function probe(home, port) {
+  try {
+    const response = await fetch(`http://127.0.0.1:${port}/__am_health`, { signal: AbortSignal.timeout(500), redirect: 'error' });
+    if (!response.ok) return null;
+    const state = await response.json();
+    return state.service === identity && state.home === home ? state : null;
+  } catch { return null; }
+}
+
+function rememberPreview(home, port, details = {}) {
+  updateSharedConfig(home, current => ({ ...current, port }));
+  writePreviewState(home, { service: identity, home, port, pid: details.pid ?? null,
+    instanceId: details.instanceId ?? null, updatedAt: new Date().toISOString() });
+}
+
+async function listenPreview(home, port) {
+  const server = createPreviewServer(home);
+  await new Promise((resolve, reject) => {
+    const fail = error => reject(error);
+    server.once('error', fail);
+    server.listen(port, '127.0.0.1', () => { server.off('error', fail); resolve(); });
+  });
+  server.on('error', error => { console.error(error.message); process.exitCode = 1; });
+  return server;
+}
+
+async function serveManaged(home, preferred, instanceId) {
+  home = resolve(home);
+  let port = preferred;
+  let server;
+  // Binding, rather than a separate availability check, resolves competing services safely.
+  for (let attempt = 0; attempt < 32; attempt++, port = nextPort(port)) {
+    try { server = await listenPreview(home, port); break; }
+    catch (error) { if (!['EADDRINUSE', 'EACCES'].includes(error.code)) throw error; }
+  }
+  if (!server) server = await listenPreview(home, 0);
+  try { rememberPreview(home, server.address().port, { pid: process.pid, instanceId }); }
+  catch (error) { server.close(); throw error; }
+  return server;
+}
+
 export async function ensurePreview(home, port, file) {
   home = resolve(home);
   const rel = relative(home, resolve(file));
   if (!/^(pages|videos)[/\\]/.test(rel) || !inside(home, resolve(file))) return null;
-  const base = `http://127.0.0.1:${port}`;
-  const probe = async () => {
-    try {
-      const response = await fetch(`${base}/__am_health`, { signal: AbortSignal.timeout(400), redirect: 'error' });
-      if (!response.ok) return 'occupied';
-      const data = await response.json();
-      return data.service === identity && data.home === home ? 'ready' : 'occupied';
-    } catch (err) { return err.cause?.code === 'ECONNREFUSED' ? 'absent' : 'occupied'; }
-  };
-  let state = await probe();
-  if (state === 'occupied') throw new Error(`Preview port ${port} is occupied by another service; no alternate port was selected`);
-  if (state !== 'ready') {
-    mkdirSync(home, { recursive: true });
+  if (!validPort(port)) throw new Error('Preview port must be an integer from 1 to 65535');
+  const selected = await withPreviewLock(home, async () => {
+    // Reload inside the lock: another session may have already chosen a replacement.
+    const configured = readSharedConfig(home).port;
+    const preferred = validPort(configured) ? configured : port;
+    const ready = await probe(home, preferred);
+    if (ready) { rememberPreview(home, preferred, ready); return preferred; }
+
+    const instanceId = randomUUID();
     const fd = openSync(join(home, 'preview.log'), 'a', 0o600);
-    const child = spawn(process.execPath, [script, '--serve', home, String(port)], { detached: true, stdio: ['ignore', fd, fd] });
+    let child;
+    try {
+      child = spawn(process.execPath, [script, '--serve', home, String(preferred), instanceId],
+        { detached: true, windowsHide: true, stdio: ['ignore', fd, fd] });
+    } finally { closeSync(fd); }
     let spawnError;
-    child.on('error', err => { spawnError = err; });
-    child.unref(); closeSync(fd);
-    for (let i = 0; i < 40; i++) {
-      await new Promise(resolve => setTimeout(resolve, 100));
-      state = await probe();
-      if (state === 'ready') break;
+    let exitCode;
+    child.on('error', error => { spawnError = error; });
+    child.on('exit', code => { exitCode = code; });
+    child.unref();
+    for (let attempt = 0; attempt < 100; attempt++) {
       if (spawnError) throw spawnError;
-      if (state === 'occupied') throw new Error(`Preview port ${port} is occupied by another service`);
+      if (exitCode !== undefined) throw new Error(`Preview process exited (${exitCode}); see ${join(home, 'preview.log')}`);
+      const state = readPreviewState(home);
+      if (state.instanceId === instanceId && validPort(state.port) && await probe(home, state.port)) return state.port;
+      await new Promise(resolve => setTimeout(resolve, 100));
     }
-    if (state !== 'ready') throw new Error(`Preview server did not start on port ${port}; see ${join(home, 'preview.log')}`);
-  }
-  return `http://localhost:${port}/${rel.split(sep).map(encodeURIComponent).join('/')}`;
+    throw new Error(`Preview server did not start; see ${join(home, 'preview.log')}`);
+  });
+  return `http://localhost:${selected}/${rel.split(sep).map(encodeURIComponent).join('/')}`;
 }
 if (process.argv[1] && resolve(process.argv[1]) === script && process.argv[2] === '--serve') {
   const port = Number(process.argv[4]);
   if (!Number.isInteger(port) || port < 1 || port > 65535 || !process.argv[3]) throw new Error('Usage: preview.mjs --serve HOME PORT');
-  serve(process.argv[3], port);
+  await serveManaged(process.argv[3], port, process.argv[5] || randomUUID());
 }
